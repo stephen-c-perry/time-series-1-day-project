@@ -1,0 +1,14 @@
+env.py
+__pycache__
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+.vscode/
+*.csv
+*.json
+*.xlsx
+*.jpg
+*.png
+*.svg
+time_series_modeling_lesson.ipynb
+wrangle.py
