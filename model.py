@@ -42,13 +42,48 @@ def rolling_avg_model(train, val):
 
 
 
-def plot_and_eval(target_var):
+def holt(train, val, test):
+    yhat_df = val + train.diff(365).mean()
+    yhat_df.index = test.index
+
+    for col in train.columns:
+        model = Holt(train[col], exponential = False)
+        model = model.fit(smoothing_level = .1, 
+                          smoothing_slope = .1, 
+                          optimized = False)
+        yhat_items = model.predict(start = val.index[0], 
+                                   end = val.index[-1])
+        yhat_df[col] = round(yhat_items, 2)
+
+
+def plot_and_eval(train, val, test, yhat_df, target_var):
     plt.figure(figsize = (12,4))
     plt.plot(train[target_var], label = 'Train', linewidth = 1)
-    plt.plot(validate[target_var], label = 'Validate', linewidth = 1)
+    plt.plot(val[target_var], label = 'Validate', linewidth = 1)
     plt.plot(yhat_df[target_var])
     plt.title(target_var)
-    rmse = evaluate(target_var)
-    print(target_var, '-- RMSE: {:.0f}'.format(rmse))
+    rmse = round(sqrt(mean_squared_error(val['avg_temp'], yhat_df['avg_temp'])), 4)
+    print(target_var, '-- RMSE: {:.4f}'.format(rmse))
     plt.show()
+
+
+
+
+def plot_all_target_sets(train, val, test):
+    for col in train.columns:
+
+        plt.figure(figsize=(12,4))
+        plt.plot(train[col])
+        plt.plot(val[col])
+        plt.plot(test[col])
+        plt.ylabel(col)
+        plt.title(col)
+        plt.show()
+
+
+
+def plot_and_evaluate(train):
+    for col in train.columns:
+        plot_and_eval(target_var = col)
+
 
